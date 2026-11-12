@@ -17,6 +17,8 @@ venv/
 .venv/
 .pytest_cache/
 *.db
+*.db-shm
+*.db-wal
 
 # Node / Frontend
 node_modules/
