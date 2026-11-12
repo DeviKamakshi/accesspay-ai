@@ -1,0 +1,30 @@
+{
+  "apimatic_configuration": {
+    "spec_format": "OpenAPI 3.1",
+    "title": "AccessPay AI Developer SDK",
+    "version": "1.0.0",
+    "documentation": {
+      "portal_theme": "Accessible High-Contrast Fintech",
+      "features": [
+        "Interactive API Console",
+        "Multi-language Code Samples (TS/Node, Python, Go, Java, C#)",
+        "Accessibility Invariants Documentation",
+        "WCAG 2.2 AA Compliance Guide"
+      ]
+    },
+    "codegen": {
+      "platforms": [
+        {
+          "language": "typescript",
+          "package_name": "@accesspay/commerce-sdk",
+          "version": "1.0.0"
+        },
+        {
+          "language": "python",
+          "package_name": "accesspay-sdk",
+          "version": "1.0.0"
+        }
+      ]
+    }
+  }
+}

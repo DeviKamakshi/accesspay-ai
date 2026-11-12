@@ -1,0 +1,5033 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AccessPay Merchant API",
+    "description": "Voice-first accessible commerce APIs for conversational product discovery, shopping-session management, cart operations, safer checkout, order history, and PayPal-powered payment workflows.\n\n**Prototype Notice:** Prototype API. Production merchant authentication and tenant isolation are not yet implemented.\n\n**Safety Boundary:** AI (Google Gemini) interprets natural-language intent and conversational follow-ups, while product prices, cart totals, confirmation gates, and PayPal Sandbox execution remain strictly server-authoritative.",
+    "contact": {
+      "name": "AccessPay AI Team"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8008",
+      "description": "Local Development"
+    }
+  ],
+  "paths": {
+    "/api/products": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "List cached catalog products",
+        "description": "Return all products currently available in the local product catalog cache.",
+        "operationId": "list_products_api_products_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Product"
+                  },
+                  "type": "array"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/mode": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get product provider mode",
+        "description": "Return the active product search provider mode (channel3, mock, or auto).",
+        "operationId": "get_product_mode_api_products_mode_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Set product provider mode",
+        "description": "Switch the active product search provider between channel3, mock, and auto.",
+        "operationId": "set_product_mode_api_products_mode_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductModeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/active-search": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get Active Search",
+        "description": "Returns the single authoritative active search session snapshot synchronized with frontend cards.",
+        "operationId": "get_active_search_api_products_active_search_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/suggestions": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get Search Suggestions",
+        "description": "Lightweight, non-Channel3 query suggestions derived from history, saved items, and catalog cache.",
+        "operationId": "get_search_suggestions_api_products_suggestions_ge",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 6
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/{product_id}": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get product details by ID",
+        "description": "Retrieve full details for a single product by its product ID.",
+        "operationId": "get_product_api_products__product_id__get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/search": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Search for products using the configured commerce provider",
+        "description": "Searches physical products using the configured commerce provider (Channel3 in this hackathon prototype; future deployments may plug in merchant-owned catalogs). Synchronizes the active shopping session.",
+        "operationId": "search_products_api_products_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductSearchQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/show-more": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Show More Products",
+        "description": "Appends the next batch of candidates for the current ActiveSearchSession.",
+        "operationId": "show_more_products_api_products_show_more_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/compare": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Compare selected products side-by-side",
+        "description": "Compare two or more selected products across price, rating, merchant, and key attributes.",
+        "operationId": "compare_products_api_products_compare_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductComparisonRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cart": {
+      "get": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Retrieve the current cart",
+        "description": "Returns all cart items with server-computed subtotal, shipping, tax, and total.",
+        "operationId": "get_cart_api_cart_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cart"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Clear all items from the cart",
+        "description": "Remove all items from the active shopping cart.",
+        "operationId": "clear_cart_api_cart_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cart"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cart/items": {
+      "post": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Add an item to the cart",
+        "description": "Adds a verified product to the cart and recalculates server-authoritative totals.",
+        "operationId": "add_to_cart_api_cart_items_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddToCartRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cart"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cart/items/{product_id}": {
+      "put": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Update cart item quantity",
+        "description": "Update the quantity of an item currently in the active shopping cart.",
+        "operationId": "update_item_quantity_api_cart_items__product_id__p",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCartItemRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cart"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Remove an item from the cart",
+        "description": "Remove a matching item from the active shopping cart by product ID or title.",
+        "operationId": "remove_from_cart_api_cart_items__product_id__delet",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cart"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/purchase/acknowledge-subscription": {
+      "post": {
+        "tags": [
+          "Checkout"
+        ],
+        "summary": "Acknowledge subscription terms",
+        "description": "Record explicit user acknowledgement of recurring subscription or trial terms on the active purchase review.",
+        "operationId": "acknowledge_subscription_api_purchase_acknowledge",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionAckRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/purchase/state": {
+      "get": {
+        "tags": [
+          "Checkout"
+        ],
+        "summary": "Get current purchase confirmation state",
+        "description": "Return the current confirmation state machine status and active purchase review, if any.",
+        "operationId": "get_current_purchase_state_api_purchase_state_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/purchase/review": {
+      "post": {
+        "tags": [
+          "Checkout"
+        ],
+        "summary": "Prepare server-authoritative purchase review",
+        "description": "Computes server-authoritative item subtotal, shipping, tax, and total, and issues a review_token required before confirmation.",
+        "operationId": "prepare_review_api_purchase_review_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseReview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/purchase/confirm": {
+      "post": {
+        "tags": [
+          "Checkout"
+        ],
+        "summary": "Verify explicit exact-amount human confirmation",
+        "description": "Enforces deterministic confirmation binding the exact server-computed total before PayPal order creation. Ambiguous consent ('yes', 'okay', 'go ahead') is rejected. AI may never silently authorize payment.",
+        "operationId": "confirm_purchase_api_purchase_confirm_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmPurchaseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/purchase/cancel": {
+      "post": {
+        "tags": [
+          "Checkout"
+        ],
+        "summary": "Cancel active purchase review",
+        "description": "Cancel the active purchase review and reset the confirmation gate without charging the user.",
+        "operationId": "cancel_purchase_api_purchase_cancel_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/purchase/simulate-price-change": {
+      "post": {
+        "tags": [
+          "Checkout"
+        ],
+        "summary": "Simulate a price change during checkout",
+        "description": "Simulate a price change on the active review, invalidating any prior confirmation token.",
+        "operationId": "simulate_price_change_api_purchase_simulate_price",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PriceChangeSimulationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseReview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/config": {
+      "get": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Get Public Paypal Config",
+        "description": "Returns public-only PayPal Sandbox configuration for the frontend SDK.\nNEVER exposes PAYPAL_CLIENT_SECRET.",
+        "operationId": "get_public_paypal_config_api_payments_config_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/paypal/create-order": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Create PayPal Sandbox order after explicit confirmation",
+        "description": "Creates a one-time PayPal Sandbox order (Orders API v2) using server-authoritative totals. Requires prior explicit exact-amount confirmation and PayPal buyer approval before capture.",
+        "operationId": "create_paypal_sandbox_order_api_payments_paypal_cr",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/CreatePayPalOrderRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/paypal/order/{order_id}": {
+      "get": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Get PayPal Sandbox order status",
+        "description": "Safely inspects live PayPal Sandbox order status (CREATED, APPROVED, COMPLETED)\nso the UI only attempts capture after PayPal buyer approval.",
+        "operationId": "get_paypal_order_status_api_payments_paypal_order",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/paypal/capture-order/{order_id}": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Capture approved PayPal Sandbox order",
+        "description": "Captures an approved PayPal Sandbox order and records the completed order with its PayPal capture ID.",
+        "operationId": "capture_paypal_sandbox_order_api_payments_paypal_c",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/CapturePayPalOrderRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/create": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Create payment order",
+        "description": "Create a payment order through the active sandbox payment service.",
+        "operationId": "create_payment_order_api_payments_create_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/capture": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Capture payment order",
+        "description": "Capture an approved payment order through the active sandbox payment service.",
+        "operationId": "capture_payment_api_payments_capture_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CapturePaymentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/simulate-failure": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Toggle payment failure simulation",
+        "description": "Enable or disable simulated payment gateway decline for testing failure handling.",
+        "operationId": "toggle_payment_failure_simulation_api_payments_sim",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulateFailureRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/mode": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Set payment provider mode",
+        "description": "Switch the active payment provider mode within the sandbox environment.",
+        "operationId": "set_payment_provider_mode_api_payments_mode_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetPaymentProviderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/status": {
+      "get": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Get payment gateway status",
+        "description": "Return configuration and sandbox readiness status for the PayPal Orders API v2 gateway.",
+        "operationId": "get_payment_gateway_status_api_payments_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "List completed one-time orders",
+        "description": "Retrieve all completed one-time orders from the local store.",
+        "operationId": "get_orders_api_orders_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OrderRecord"
+                  },
+                  "type": "array"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/track": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Track recent order status",
+        "description": "Look up tracking and fulfillment status for a recent order by optional query.",
+        "operationId": "track_order_api_orders_track_get",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/return": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Check return eligibility for an order",
+        "description": "Evaluate return eligibility and instructions for a previously purchased item.",
+        "operationId": "return_assistant_api_orders_return_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/reorder-last": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Prepare purchase review for the most recent order",
+        "description": "Load the most recent completed order into the cart and prepare a fresh purchase review.",
+        "operationId": "reorder_last_order_api_orders_reorder_last_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{order_id}": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Retrieve order details by ID",
+        "description": "Fetch full details for a single completed order by its order ID.",
+        "operationId": "get_order_details_api_orders__order_id__get",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{order_id}/reorder": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Prepare purchase review to reorder a specific order",
+        "description": "Load items from a specific past order into the cart and prepare a fresh purchase review.",
+        "operationId": "reorder_specific_order_api_orders__order_id__reord",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/saved/items": {
+      "get": {
+        "tags": [
+          "Saved"
+        ],
+        "summary": "List saved items",
+        "description": "Retrieve all products saved by the user for later review or purchase.",
+        "operationId": "get_saved_items_api_saved_items_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SavedItem"
+                  },
+                  "type": "array"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Saved"
+        ],
+        "summary": "Save a product item",
+        "description": "Save a product from the catalog or active search session to the user's Saved Items list.",
+        "operationId": "save_item_api_saved_items_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveItemRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedItem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/saved/items/{saved_item_id}": {
+      "delete": {
+        "tags": [
+          "Saved"
+        ],
+        "summary": "Delete a saved item",
+        "description": "Remove a product from the user's Saved Items list by saved item ID.",
+        "operationId": "delete_saved_item_api_saved_items__saved_item_id",
+        "parameters": [
+          {
+            "name": "saved_item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/saved/items/{saved_item_id}/add-to-cart": {
+      "post": {
+        "tags": [
+          "Saved"
+        ],
+        "summary": "Add saved item to cart",
+        "description": "Add a previously saved product directly into the active shopping cart.",
+        "operationId": "add_saved_item_to_cart_api_saved_items__saved_item",
+        "parameters": [
+          {
+            "name": "saved_item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/saved/searches": {
+      "get": {
+        "tags": [
+          "Saved"
+        ],
+        "summary": "List saved searches",
+        "description": "Retrieve all saved product search queries and their associated filters.",
+        "operationId": "get_saved_searches_api_saved_searches_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SavedSearch"
+                  },
+                  "type": "array"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Saved"
+        ],
+        "summary": "Save current or specified search",
+        "description": "Save the active search session or a specified query and filters as a reusable Saved Search.",
+        "operationId": "save_current_search_api_saved_searches_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/SaveSearchRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedSearch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/saved/searches/{saved_search_id}": {
+      "delete": {
+        "tags": [
+          "Saved"
+        ],
+        "summary": "Delete a saved search",
+        "description": "Remove a saved search entry by its saved search ID.",
+        "operationId": "delete_saved_search_api_saved_searches__saved_sear",
+        "parameters": [
+          {
+            "name": "saved_search_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/saved/searches/{saved_search_id}/run": {
+      "post": {
+        "tags": [
+          "Saved"
+        ],
+        "summary": "Re-run a saved search",
+        "description": "Execute a saved search query with its stored filters and update the active search session.",
+        "operationId": "run_saved_search_api_saved_searches__saved_search",
+        "parameters": [
+          {
+            "name": "saved_search_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/saved/history": {
+      "get": {
+        "tags": [
+          "Saved"
+        ],
+        "summary": "List recent search history",
+        "description": "Retrieve the most recent product search history entries.",
+        "operationId": "get_search_history_api_saved_history_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SearchHistoryEntry"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Saved"
+        ],
+        "summary": "Clear recent search history",
+        "description": "Delete all entries from the recent search history list.",
+        "operationId": "clear_search_history_api_saved_history_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/saved/history/{history_id}/run": {
+      "post": {
+        "tags": [
+          "Saved"
+        ],
+        "summary": "Re-run a recent search",
+        "description": "Re-execute a previous search from recent search history and update the active search session.",
+        "operationId": "run_search_history_api_saved_history__history_id",
+        "parameters": [
+          {
+            "name": "history_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/saved/history/{history_id}/save": {
+      "post": {
+        "tags": [
+          "Saved"
+        ],
+        "summary": "Promote recent search to saved search",
+        "description": "Save an entry from recent search history as a persistent Saved Search.",
+        "operationId": "save_search_history_entry_api_saved_history__histo",
+        "parameters": [
+          {
+            "name": "history_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedSearch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/accessibility/preferences": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Get accessibility preferences",
+        "description": "Retrieve the current accessibility preferences for the active session.",
+        "operationId": "get_preferences_api_accessibility_preferences_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessibilityPreferences"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Update accessibility preferences",
+        "description": "Update one or more accessibility preference fields for the active session.",
+        "operationId": "update_preferences_api_accessibility_preferences_p",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessibilityPreferences"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/accessibility/mode": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Set accessibility mode",
+        "description": "Switch the active accessibility mode preference.",
+        "operationId": "switch_mode_api_accessibility_mode_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModeSwitchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessibilityPreferences"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/accessibility/reset": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Reset accessibility preferences",
+        "description": "Reset all accessibility preferences back to their default values.",
+        "operationId": "reset_preferences_api_accessibility_reset_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessibilityPreferences"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/intent": {
+      "post": {
+        "tags": [
+          "AI & Intent"
+        ],
+        "summary": "Interpret a conversational shopping command",
+        "description": "Routes natural-language shopping, comparison, cart, saved-item, and checkout-navigation commands. May invoke Google Gemini for NLU and Channel3 for product discovery. Gemini never supplies authoritative prices, cart totals, or payment authorization.",
+        "operationId": "process_intent_api_ai_intent_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserIntentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/commands": {
+      "get": {
+        "tags": [
+          "AI & Intent"
+        ],
+        "summary": "List suggested voice commands",
+        "description": "Return suggested voice commands tailored to the active shopping context.",
+        "operationId": "get_suggested_commands_api_ai_commands_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/status": {
+      "get": {
+        "tags": [
+          "AI & Intent"
+        ],
+        "summary": "Get AI provider readiness status",
+        "description": "Return configuration and availability status for the conversational AI provider.",
+        "operationId": "get_ai_status_api_ai_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/reset-conversation": {
+      "post": {
+        "tags": [
+          "AI & Intent"
+        ],
+        "summary": "Reset conversational AI context",
+        "description": "Clear the active conversational AI history and shopping intent context.",
+        "operationId": "reset_ai_conversation_api_ai_reset_conversation_po",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/timeline": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "List commerce timeline events",
+        "description": "Retrieve all upcoming and recent commerce timeline events for the active session.",
+        "operationId": "get_timeline_api_timeline_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TimelineEvent"
+                  },
+                  "type": "array"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/timeline/query": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Query commerce timeline",
+        "description": "Filter or query commerce timeline events using natural language.",
+        "operationId": "query_timeline_api_timeline_query_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TimelineQueryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/summary": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Get accessibility activity summary",
+        "description": "Retrieve summary metrics for voice and accessibility interactions.",
+        "operationId": "get_accessibility_activity_summary_api_analytics_s",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessibilityActivitySummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/grid-query": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Query purchase analytics grid",
+        "description": "Translate a natural-language query into structured purchase analytics results.",
+        "operationId": "query_grid_api_analytics_grid_query_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GridQueryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/audit-events": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "List recent audit events",
+        "description": "Retrieve the most recent security and confirmation audit log events.",
+        "operationId": "get_audit_events_api_analytics_audit_events_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/demo/scenarios": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "List demo scenarios",
+        "description": "Return the built-in AccessPay demonstration scenarios.",
+        "operationId": "list_scenarios_api_demo_scenarios_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/demo/reset": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Reset Demo",
+        "description": "RESET DEMO: Resets shopping session, cart, current product selection,\nand confirmation state without altering secrets or environment configuration.",
+        "operationId": "reset_demo_api_demo_reset_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/demo/scenario/{scenario_id}": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Load Scenario",
+        "description": "Deterministically sets up state for a specific demo scenario.",
+        "operationId": "load_scenario_api_demo_scenario__scenario_id__post",
+        "parameters": [
+          {
+            "name": "scenario_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/developer/overview": {
+      "get": {
+        "tags": [
+          "Developer"
+        ],
+        "summary": "Get developer architecture overview",
+        "description": "Return AccessPay Merchant API endpoints, integration guides, and non-secret provider readiness status.",
+        "operationId": "get_developer_overview_api_developer_overview_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subscriptions/products": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "List demo subscription plans",
+        "description": "Search the isolated Demo Subscription Catalog (never routed through Channel3).",
+        "operationId": "list_subscription_products_api_subscriptions_produ",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubscriptionOffer"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subscriptions/records/list": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "List user subscriptions",
+        "description": "List persisted user subscriptions (separate from one-time Orders).",
+        "operationId": "list_user_subscriptions_api_subscriptions_records",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SubscriptionRecord"
+                  },
+                  "type": "array"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subscriptions/{offer_id}": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Get demo subscription offer details",
+        "description": "Retrieve full billing terms and metadata for a specific demo subscription offer.",
+        "operationId": "get_subscription_offer_api_subscriptions__offer_id",
+        "parameters": [
+          {
+            "name": "offer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionOffer"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subscriptions/qa": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Answer questions about subscription terms",
+        "description": "Answer user questions about renewal frequency, cancellation, and pricing for a subscription offer.",
+        "operationId": "answer_subscription_question_api_subscriptions_qa",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionQARequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionQAResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subscriptions/review": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Prepare recurring subscription commitment review",
+        "description": "Prepares recurring subscription disclosure (due today, recurring amount, billing frequency, renewal & cancellation terms) without creating any subscription.",
+        "operationId": "prepare_subscription_review_api_subscriptions_revi",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionReview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subscriptions/confirm": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Confirm recurring subscription amount and billing frequency",
+        "description": "Deterministic confirmation gate requiring BOTH exact recurring amount and billing frequency. Distinct from one-time Orders confirmation.",
+        "operationId": "confirm_subscription_commitment_api_subscriptions",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionConfirmRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionConfirmResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subscriptions/paypal/create": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Create PayPal Sandbox subscription after recurring confirmation",
+        "description": "Creates a PayPal Sandbox subscription via Subscriptions API v1 (/v1/billing/subscriptions). Blocked unless explicit recurring confirmation was granted.",
+        "operationId": "create_paypal_subscription_api_subscriptions_paypa",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayPalSubscriptionCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subscriptions/paypal/status/{subscription_id}": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Get PayPal subscription status",
+        "description": "Fetch the latest status of a PayPal Sandbox subscription by subscription ID.",
+        "operationId": "get_paypal_subscription_status_api_subscriptions_p",
+        "parameters": [
+          {
+            "name": "subscription_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subscriptions/{subscription_id}/cancel": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Cancel PayPal subscription",
+        "description": "Cancel an active PayPal Sandbox subscription after verifying the explicit cancellation confirmation phrase.",
+        "operationId": "cancel_paypal_subscription_api_subscriptions__subs",
+        "parameters": [
+          {
+            "name": "subscription_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionCancelRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Health check",
+        "description": "Render Health Check endpoint (/health).\nReturns {\"status\": \"ok\"} and safe component readiness without exposing any secrets.",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "API health check",
+        "description": "Alias under /api/health for frontend health probes.",
+        "operationId": "api_health_check_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Service metadata",
+        "description": "Return basic service metadata, version, and documentation entrypoints.",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccessibilityActivitySummary": {
+        "properties": {
+          "purchases_completed": {
+            "type": "integer",
+            "default": 14
+          },
+          "voice_interactions": {
+            "type": "integer",
+            "default": 42
+          },
+          "keyboard_interactions": {
+            "type": "integer",
+            "default": 31
+          },
+          "large_control_interactions": {
+            "type": "integer",
+            "default": 19
+          },
+          "switch_compatible_interactions": {
+            "type": "integer",
+            "default": 12
+          },
+          "subscription_warnings_shown": {
+            "type": "integer",
+            "default": 8
+          },
+          "cheaper_alternatives_accepted": {
+            "type": "integer",
+            "default": 6
+          },
+          "purchases_cancelled_before_payment": {
+            "type": "integer",
+            "default": 5
+          }
+        },
+        "type": "object",
+        "title": "AccessibilityActivitySummary"
+      },
+      "AccessibilityPreferences": {
+        "properties": {
+          "user_name": {
+            "type": "string",
+            "default": "Alex"
+          },
+          "current_mode": {
+            "type": "string",
+            "default": "VOICE"
+          },
+          "read_important_aloud": {
+            "type": "boolean",
+            "default": true
+          },
+          "read_total_aloud": {
+            "type": "boolean",
+            "default": true
+          },
+          "simplified_interface": {
+            "type": "boolean",
+            "default": false
+          },
+          "one_action_per_screen": {
+            "type": "boolean",
+            "default": false
+          },
+          "reduced_motion": {
+            "type": "boolean",
+            "default": false
+          },
+          "extra_response_time": {
+            "type": "boolean",
+            "default": false
+          },
+          "warn_subscriptions": {
+            "type": "boolean",
+            "default": true
+          },
+          "always_show_total_cost": {
+            "type": "boolean",
+            "default": true
+          },
+          "suggest_cheaper_alternatives": {
+            "type": "boolean",
+            "default": true
+          },
+          "cheaper_alternative_threshold": {
+            "type": "number",
+            "default": 50.0
+          },
+          "exact_price_confirmation": {
+            "type": "boolean",
+            "default": true
+          },
+          "double_confirmation_threshold": {
+            "type": "number",
+            "default": 500.0
+          },
+          "warn_quantity_greater_one": {
+            "type": "boolean",
+            "default": true
+          },
+          "warn_shipping_exceeds": {
+            "type": "number",
+            "default": 15.0
+          },
+          "switch_scan_speed_ms": {
+            "type": "integer",
+            "default": 1800
+          }
+        },
+        "type": "object",
+        "title": "AccessibilityPreferences"
+      },
+      "AddToCartRequest": {
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "default": 1
+          },
+          "selected_variant": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id"
+        ],
+        "title": "AddToCartRequest"
+      },
+      "CapturePayPalOrderRequest": {
+        "properties": {
+          "review_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "interaction_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "confirmation_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "CapturePayPalOrderRequest"
+      },
+      "CapturePaymentRequest": {
+        "properties": {
+          "paypal_order_id": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "paypal_order_id"
+        ],
+        "title": "CapturePaymentRequest"
+      },
+      "Cart": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CartItem"
+            },
+            "type": "array"
+          },
+          "item_count": {
+            "type": "integer",
+            "default": 0
+          },
+          "subtotal": {
+            "type": "number",
+            "default": 0.0
+          },
+          "shipping_total": {
+            "type": "number",
+            "default": 0.0
+          },
+          "tax_total": {
+            "type": "number",
+            "default": 0.0
+          },
+          "discount_total": {
+            "type": "number",
+            "default": 0.0
+          },
+          "total_today": {
+            "type": "number",
+            "default": 0.0
+          },
+          "future_payments": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "None"
+          },
+          "has_subscriptions": {
+            "type": "boolean",
+            "default": false
+          },
+          "has_trials": {
+            "type": "boolean",
+            "default": false
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object",
+        "title": "Cart"
+      },
+      "CartItem": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "product_id": {
+            "type": "string"
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product"
+          },
+          "quantity": {
+            "type": "integer",
+            "default": 1
+          },
+          "selected_variant": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "item_total": {
+            "type": "number",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "product_id",
+          "product"
+        ],
+        "title": "CartItem"
+      },
+      "ConfirmPurchaseRequest": {
+        "properties": {
+          "review_token": {
+            "type": "string"
+          },
+          "spoken_phrase": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "confirmation_method": {
+            "type": "string",
+            "default": "VOICE"
+          },
+          "subscription_acknowledged": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trial_acknowledged": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "high_value_step": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "authorize_only": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "review_token"
+        ],
+        "title": "ConfirmPurchaseRequest"
+      },
+      "ConfirmationEvent": {
+        "properties": {
+          "timestamp": {
+            "type": "string"
+          },
+          "event_type": {
+            "type": "string"
+          },
+          "details": {
+            "type": "string"
+          },
+          "interaction_mode": {
+            "type": "string",
+            "default": "VOICE"
+          }
+        },
+        "type": "object",
+        "required": [
+          "timestamp",
+          "event_type",
+          "details"
+        ],
+        "title": "ConfirmationEvent"
+      },
+      "CreatePayPalOrderRequest": {
+        "properties": {
+          "review_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "return_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cancel_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "CreatePayPalOrderRequest"
+      },
+      "CreatePaymentRequest": {
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string",
+            "default": "USD"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "AccessPay AI Order"
+          }
+        },
+        "type": "object",
+        "required": [
+          "amount"
+        ],
+        "title": "CreatePaymentRequest"
+      },
+      "GridQueryRequest": {
+        "properties": {
+          "query": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "GridQueryRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "IntentResponse": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "Resolved application action (e.g., SEARCH_RESULTS, COMPARE, PAYMENT_REVIEW_READY)."
+          },
+          "speech_response": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Accessible spoken/display summary of the result."
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "search_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "search_generation": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "products": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "title": "IntentResponse"
+      },
+      "ModeSwitchRequest": {
+        "properties": {
+          "mode": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mode"
+        ],
+        "title": "ModeSwitchRequest"
+      },
+      "OrderLineItem": {
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "product_title": {
+            "type": "string"
+          },
+          "merchant": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "default": "General"
+          },
+          "unit_price": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "integer",
+            "default": 1
+          },
+          "line_total": {
+            "type": "number"
+          },
+          "variant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "Standard Option"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id",
+          "product_title",
+          "merchant",
+          "unit_price",
+          "line_total"
+        ],
+        "title": "OrderLineItem"
+      },
+      "OrderRecord": {
+        "properties": {
+          "order_id": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "product_title": {
+            "type": "string"
+          },
+          "merchant": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "item_price": {
+            "type": "number"
+          },
+          "item_subtotal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "shipping": {
+            "type": "number"
+          },
+          "tax": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "integer",
+            "default": 1
+          },
+          "variant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "Standard"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OrderLineItem"
+            },
+            "type": "array"
+          },
+          "is_recurring": {
+            "type": "boolean",
+            "default": false
+          },
+          "interaction_mode": {
+            "type": "string",
+            "default": "VOICE"
+          },
+          "confirmation_method": {
+            "type": "string",
+            "default": "Exact-Amount Voice Phrase"
+          },
+          "payment_status": {
+            "type": "string",
+            "default": "PAID"
+          },
+          "paypal_order_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "paypal_capture_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tracking_status": {
+            "type": "string",
+            "default": "DELIVERED"
+          },
+          "tracking_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "return_eligible": {
+            "type": "boolean",
+            "default": true
+          },
+          "return_window_days": {
+            "type": "integer",
+            "default": 30
+          }
+        },
+        "type": "object",
+        "required": [
+          "order_id",
+          "date",
+          "product_title",
+          "merchant",
+          "category",
+          "item_price",
+          "shipping",
+          "tax",
+          "total"
+        ],
+        "title": "OrderRecord"
+      },
+      "PayPalSubscriptionCreateRequest": {
+        "properties": {
+          "review_token": {
+            "type": "string"
+          },
+          "return_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cancel_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "review_token"
+        ],
+        "title": "PayPalSubscriptionCreateRequest"
+      },
+      "PriceChangeSimulationRequest": {
+        "properties": {
+          "new_price": {
+            "type": "number",
+            "default": 62.99
+          }
+        },
+        "type": "object",
+        "title": "PriceChangeSimulationRequest"
+      },
+      "Product": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "type": "string",
+            "default": ""
+          },
+          "price": {
+            "type": "number"
+          },
+          "original_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "shipping": {
+            "type": "number",
+            "default": 0.0
+          },
+          "estimated_tax": {
+            "type": "number",
+            "default": 0.0
+          },
+          "category": {
+            "type": "string",
+            "default": "General"
+          },
+          "merchant": {
+            "type": "string",
+            "default": "Online Retailer"
+          },
+          "image_url": {
+            "type": "string",
+            "default": ""
+          },
+          "image_alt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "product_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "review_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "is_available": {
+            "type": "boolean",
+            "default": true
+          },
+          "availability": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "InStock"
+          },
+          "attributes": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "source": {
+            "type": "string",
+            "default": "mock"
+          },
+          "is_subscription": {
+            "type": "boolean",
+            "default": false
+          },
+          "subscription_period": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "is_trial": {
+            "type": "boolean",
+            "default": false
+          },
+          "trial_days": {
+            "type": "integer",
+            "default": 0
+          },
+          "trial_post_price": {
+            "type": "number",
+            "default": 0.0
+          },
+          "documented_accessibility_features": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "ai_inferred_accessibility": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "ranking_badge": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ranking_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cheaper_alternative_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "savings_amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "variants": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "price"
+        ],
+        "title": "Product"
+      },
+      "ProductComparisonRequest": {
+        "properties": {
+          "product_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_ids"
+        ],
+        "title": "ProductComparisonRequest"
+      },
+      "ProductModeRequest": {
+        "properties": {
+          "provider": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider"
+        ],
+        "title": "ProductModeRequest"
+      },
+      "ProductSearchQuery": {
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "budget_limit": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "min_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "requirements": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "accessibility_needs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "merchant_preference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sort_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "relevance"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "ProductSearchQuery"
+      },
+      "PurchaseResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "state": {
+            "$ref": "#/components/schemas/PurchaseState"
+          },
+          "message": {
+            "type": "string"
+          },
+          "order_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "paypal_order_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "paypal_capture_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "product_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "merchant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "is_subscription": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "amount_charged": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "item_subtotal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "shipping": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tax": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OrderLineItem"
+            },
+            "type": "array"
+          },
+          "requires_step": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "is_ambiguous": {
+            "type": "boolean",
+            "default": false
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/ConfirmationEvent"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "state",
+          "message"
+        ],
+        "title": "PurchaseResponse"
+      },
+      "PurchaseReview": {
+        "properties": {
+          "state": {
+            "default": "PAYMENT_REVIEW",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PurchaseState"
+              }
+            ]
+          },
+          "cart": {
+            "$ref": "#/components/schemas/Cart"
+          },
+          "item_subtotal": {
+            "type": "number"
+          },
+          "shipping": {
+            "type": "number"
+          },
+          "tax": {
+            "type": "number"
+          },
+          "discount": {
+            "type": "number",
+            "default": 0.0
+          },
+          "total_today": {
+            "type": "number"
+          },
+          "future_payments": {
+            "type": "string",
+            "default": "None"
+          },
+          "is_high_value": {
+            "type": "boolean",
+            "default": false
+          },
+          "high_value_step": {
+            "type": "integer",
+            "default": 1
+          },
+          "high_value_total_steps": {
+            "type": "integer",
+            "default": 1
+          },
+          "requires_exact_phrase": {
+            "type": "boolean",
+            "default": true
+          },
+          "expected_phrase": {
+            "type": "string"
+          },
+          "is_subscription": {
+            "type": "boolean",
+            "default": false
+          },
+          "subscription_terms": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "subscription_acknowledged": {
+            "type": "boolean",
+            "default": false
+          },
+          "is_free_trial": {
+            "type": "boolean",
+            "default": false
+          },
+          "trial_terms": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trial_acknowledged": {
+            "type": "boolean",
+            "default": false
+          },
+          "quantity_warning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "shipping_warning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "snapshot_total": {
+            "type": "number"
+          },
+          "snapshot_shipping": {
+            "type": "number"
+          },
+          "snapshot_item_subtotal": {
+            "type": "number"
+          },
+          "snapshot_tax": {
+            "type": "number",
+            "default": 0.0
+          },
+          "snapshot_quantity": {
+            "type": "integer",
+            "default": 1
+          },
+          "snapshot_variant": {
+            "type": "string",
+            "default": ""
+          },
+          "snapshot_items": {
+            "type": "string",
+            "default": ""
+          },
+          "snapshot_recurring_terms": {
+            "type": "string",
+            "default": "None"
+          },
+          "review_token": {
+            "type": "string"
+          },
+          "is_invalidated": {
+            "type": "boolean",
+            "default": false
+          },
+          "invalidation_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "cart",
+          "item_subtotal",
+          "shipping",
+          "tax",
+          "total_today",
+          "expected_phrase",
+          "snapshot_total",
+          "snapshot_shipping",
+          "snapshot_item_subtotal",
+          "review_token"
+        ],
+        "title": "PurchaseReview"
+      },
+      "PurchaseState": {
+        "type": "string",
+        "enum": [
+          "BROWSING",
+          "PRODUCT_SELECTED",
+          "CART",
+          "PAYMENT_REVIEW",
+          "CONFIRMATION_REQUIRED",
+          "PAYMENT_PROCESSING",
+          "PAYMENT_COMPLETE",
+          "CANCELLED",
+          "PAYMENT_FAILED"
+        ],
+        "title": "PurchaseState"
+      },
+      "ReturnRequest": {
+        "properties": {
+          "product_name": {
+            "type": "string",
+            "default": "headphones"
+          }
+        },
+        "type": "object",
+        "title": "ReturnRequest"
+      },
+      "SaveItemRequest": {
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "product_snapshot": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id"
+        ],
+        "title": "SaveItemRequest"
+      },
+      "SaveSearchRequest": {
+        "properties": {
+          "original_query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "display_query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "structured_intent": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "filters": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reference_product_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "SaveSearchRequest"
+      },
+      "SavedItem": {
+        "properties": {
+          "saved_item_id": {
+            "type": "string"
+          },
+          "product_id": {
+            "type": "string"
+          },
+          "product_title": {
+            "type": "string"
+          },
+          "merchant": {
+            "type": "string"
+          },
+          "price_at_save": {
+            "type": "number"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "product_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "important_attributes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "product_snapshot": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "saved_at": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "saved_item_id",
+          "product_id",
+          "product_title",
+          "merchant",
+          "price_at_save",
+          "saved_at"
+        ],
+        "title": "SavedItem"
+      },
+      "SavedSearch": {
+        "properties": {
+          "saved_search_id": {
+            "type": "string"
+          },
+          "original_query": {
+            "type": "string"
+          },
+          "display_query": {
+            "type": "string"
+          },
+          "structured_intent": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "filters": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "sort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reference_product_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "saved_at": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "saved_search_id",
+          "original_query",
+          "display_query",
+          "saved_at"
+        ],
+        "title": "SavedSearch"
+      },
+      "SearchHistoryEntry": {
+        "properties": {
+          "history_id": {
+            "type": "string"
+          },
+          "search_id": {
+            "type": "string"
+          },
+          "query": {
+            "type": "string"
+          },
+          "display_query": {
+            "type": "string"
+          },
+          "result_count": {
+            "type": "integer",
+            "default": 0
+          },
+          "structured_intent": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "filters": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "sort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "searched_at": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "history_id",
+          "search_id",
+          "query",
+          "display_query",
+          "searched_at"
+        ],
+        "title": "SearchHistoryEntry"
+      },
+      "SetPaymentProviderRequest": {
+        "properties": {
+          "provider": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider"
+        ],
+        "title": "SetPaymentProviderRequest"
+      },
+      "SimulateFailureRequest": {
+        "properties": {
+          "simulate": {
+            "type": "boolean"
+          }
+        },
+        "type": "object",
+        "required": [
+          "simulate"
+        ],
+        "title": "SimulateFailureRequest"
+      },
+      "SubscriptionAckRequest": {
+        "properties": {
+          "acknowledged": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "type": "object",
+        "title": "SubscriptionAckRequest"
+      },
+      "SubscriptionCancelRequest": {
+        "properties": {
+          "confirmation_phrase": {
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "confirmation_phrase"
+        ],
+        "title": "SubscriptionCancelRequest"
+      },
+      "SubscriptionConfirmRequest": {
+        "properties": {
+          "review_token": {
+            "type": "string"
+          },
+          "spoken_phrase": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string",
+            "default": "VOICE"
+          }
+        },
+        "type": "object",
+        "required": [
+          "review_token",
+          "spoken_phrase"
+        ],
+        "title": "SubscriptionConfirmRequest"
+      },
+      "SubscriptionConfirmResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "is_ambiguous": {
+            "type": "boolean",
+            "default": false
+          },
+          "wrong_amount": {
+            "type": "boolean",
+            "default": false
+          },
+          "wrong_frequency": {
+            "type": "boolean",
+            "default": false
+          },
+          "message": {
+            "type": "string"
+          },
+          "review_token": {
+            "type": "string"
+          },
+          "expected_phrase": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "message",
+          "review_token",
+          "expected_phrase"
+        ],
+        "title": "SubscriptionConfirmResponse"
+      },
+      "SubscriptionOffer": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "currency": {
+            "type": "string",
+            "default": "USD"
+          },
+          "amount_due_today": {
+            "type": "number"
+          },
+          "recurring_amount": {
+            "type": "number"
+          },
+          "billing_frequency": {
+            "type": "string"
+          },
+          "billing_interval": {
+            "type": "string"
+          },
+          "interval_count": {
+            "type": "integer",
+            "default": 1
+          },
+          "trial_period": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "setup_fee": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "renewal_behavior": {
+            "type": "string"
+          },
+          "cancellation_information": {
+            "type": "string"
+          },
+          "paypal_product_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "paypal_plan_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "type": "string",
+            "default": "demo_subscription_catalog"
+          },
+          "is_demo": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "provider",
+          "name",
+          "description",
+          "amount_due_today",
+          "recurring_amount",
+          "billing_frequency",
+          "billing_interval",
+          "renewal_behavior",
+          "cancellation_information"
+        ],
+        "title": "SubscriptionOffer"
+      },
+      "SubscriptionQARequest": {
+        "properties": {
+          "offer_id": {
+            "type": "string"
+          },
+          "question": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "offer_id",
+          "question"
+        ],
+        "title": "SubscriptionQARequest"
+      },
+      "SubscriptionQAResponse": {
+        "properties": {
+          "offer_id": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "offer_id",
+          "answer"
+        ],
+        "title": "SubscriptionQAResponse"
+      },
+      "SubscriptionRecord": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "offer_id": {
+            "type": "string"
+          },
+          "plan_name": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string",
+            "default": "USD"
+          },
+          "amount_due_today": {
+            "type": "number"
+          },
+          "recurring_amount": {
+            "type": "number"
+          },
+          "billing_frequency": {
+            "type": "string"
+          },
+          "paypal_product_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "paypal_plan_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "paypal_subscription_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "approval_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          },
+          "cancelled_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "is_demo_catalog": {
+            "type": "boolean",
+            "default": true
+          },
+          "paypal_environment": {
+            "type": "string",
+            "default": "sandbox"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subscription_id",
+          "offer_id",
+          "plan_name",
+          "provider",
+          "amount_due_today",
+          "recurring_amount",
+          "billing_frequency",
+          "paypal_subscription_id",
+          "status",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "SubscriptionRecord"
+      },
+      "SubscriptionReview": {
+        "properties": {
+          "review_token": {
+            "type": "string"
+          },
+          "offer": {
+            "$ref": "#/components/schemas/SubscriptionOffer"
+          },
+          "due_today": {
+            "type": "number"
+          },
+          "recurring_amount": {
+            "type": "number"
+          },
+          "billing_frequency": {
+            "type": "string"
+          },
+          "expected_phrase": {
+            "type": "string"
+          },
+          "is_invalidated": {
+            "type": "boolean",
+            "default": false
+          },
+          "invalidation_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "confirmation_granted": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "review_token",
+          "offer",
+          "due_today",
+          "recurring_amount",
+          "billing_frequency",
+          "expected_phrase"
+        ],
+        "title": "SubscriptionReview"
+      },
+      "SubscriptionReviewRequest": {
+        "properties": {
+          "offer_id": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "offer_id"
+        ],
+        "title": "SubscriptionReviewRequest"
+      },
+      "TimelineEvent": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "display_date": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "merchant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "is_recurring": {
+            "type": "boolean",
+            "default": false
+          },
+          "recurring_interval": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "highlight": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "date",
+          "display_date",
+          "title",
+          "category",
+          "description",
+          "status"
+        ],
+        "title": "TimelineEvent"
+      },
+      "TimelineQueryRequest": {
+        "properties": {
+          "query": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "TimelineQueryRequest"
+      },
+      "UpdateCartItemRequest": {
+        "properties": {
+          "quantity": {
+            "type": "integer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "quantity"
+        ],
+        "title": "UpdateCartItemRequest"
+      },
+      "UserIntentRequest": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Natural-language shopping or navigation command from voice or text.",
+            "examples": [
+              "Find wireless headphones under $80",
+              "Compare the first two"
+            ]
+          },
+          "input_mode": {
+            "type": "string",
+            "description": "Input channel: 'text', 'voice', or 'chip'.",
+            "default": "text"
+          },
+          "active_search_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Active search session identifier for contextual follow-ups."
+          },
+          "search_generation": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Monotonic search generation counter to discard stale turns."
+          },
+          "visible_product_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "IDs of products currently displayed to the user."
+          },
+          "raw_transcript": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Raw speech-to-text transcript prior to normalization."
+          },
+          "current_view": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Current UI view name (e.g., SHOP, CART, ORDERS)."
+          },
+          "visible_saved_item_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "visible_saved_search_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "visible_order_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "selected_order_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "selected_saved_item_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "visible_cart_product_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "UserIntentRequest"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "input": {},
+          "ctx": {
+            "type": "object"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "AI & Intent",
+      "description": "Natural-language shopping intent orchestration powered by Google Gemini (NLU only; does not supply authoritative prices, cart totals, or payment authorization)."
+    },
+    {
+      "name": "Products",
+      "description": "Product discovery, comparison, and session search. Channel3 is the configured real-commerce provider in this hackathon prototype; future deployments may plug in merchant catalogs."
+    },
+    {
+      "name": "Saved",
+      "description": "Saved items, saved searches, and recent search history."
+    },
+    {
+      "name": "Cart",
+      "description": "Shopping cart management and server-computed item totals."
+    },
+    {
+      "name": "Checkout",
+      "description": "Purchase review and deterministic exact-amount human confirmation gates. AI may never silently authorize payment."
+    },
+    {
+      "name": "Orders",
+      "description": "Completed one-time order history, tracking, and reorder preparation."
+    },
+    {
+      "name": "Payments",
+      "description": "PayPal Sandbox Orders API v2 creation, buyer approval verification, and capture."
+    },
+    {
+      "name": "Subscriptions",
+      "description": "Isolated Demo Subscription Catalog and PayPal Sandbox Subscriptions API v1 workflows requiring exact recurring amount + billing frequency confirmation."
+    },
+    {
+      "name": "Developer",
+      "description": "Prototype Merchant API overview and APIMatic context verification metadata."
+    },
+    {
+      "name": "System",
+      "description": "Health probes, accessibility settings, activity timeline, analytics, and demo utilities."
+    }
+  ]
+}

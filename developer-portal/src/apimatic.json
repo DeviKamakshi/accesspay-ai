@@ -1,0 +1,30 @@
+{
+  "$schema": "https://cdn.jsdelivr.net/npm/@apimatic/cli@2/apimatic.schema.json",
+  "schemaVersion": 1,
+  "portal": {
+    "site": {
+      "name": "AccessPay Merchant API",
+      "description": "Voice-first accessible commerce APIs for conversational product discovery, shopping-session management, cart operations, safer checkout, order history, and PayPal-powered payment workflows."
+    },
+    "brand": {
+      "colors": {},
+      "colorMode": "both"
+    },
+    "navigation": {
+      "links": []
+    },
+    "ai": {
+      "pageActions": true
+    }
+  },
+  "languages": {
+    "typescript": {},
+    "python": {}
+  },
+  "plugin": {
+    "pluginId": "my-api-plugin",
+    "pluginName": "My API Plugin",
+    "pluginVersion": "0.1.0",
+    "license": "MIT"
+  }
+}

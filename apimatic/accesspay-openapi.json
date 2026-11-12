@@ -1,0 +1,2509 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AccessPay AI",
+    "description": "Accessibility-first agentic commerce platform designed for physical shopping independence with user-controlled spending.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/products": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "List Products",
+        "operationId": "list_products_api_products_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Product"
+                  },
+                  "type": "array",
+                  "title": "Response List Products Api Products Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/{product_id}": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get Product",
+        "operationId": "get_product_api_products__product_id__get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/search": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Search Products",
+        "operationId": "search_products_api_products_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductSearchQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/compare": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Compare Products",
+        "operationId": "compare_products_api_products_compare_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductComparisonRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cart": {
+      "get": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Get Cart",
+        "operationId": "get_cart_api_cart_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cart"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Clear Cart",
+        "operationId": "clear_cart_api_cart_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cart"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cart/items": {
+      "post": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Add To Cart",
+        "operationId": "add_to_cart_api_cart_items_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddToCartRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cart"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cart/items/{product_id}": {
+      "put": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Update Item Quantity",
+        "operationId": "update_item_quantity_api_cart_items__product_id__put",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCartItemRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cart"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cart/items/{product_id_or_title}": {
+      "delete": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Remove From Cart",
+        "operationId": "remove_from_cart_api_cart_items__product_id_or_title__delete",
+        "parameters": [
+          {
+            "name": "product_id_or_title",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id Or Title"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cart"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/purchase/state": {
+      "get": {
+        "tags": [
+          "Purchase & Confirmation"
+        ],
+        "summary": "Get Current Purchase State",
+        "operationId": "get_current_purchase_state_api_purchase_state_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/purchase/review": {
+      "post": {
+        "tags": [
+          "Purchase & Confirmation"
+        ],
+        "summary": "Prepare Review",
+        "operationId": "prepare_review_api_purchase_review_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseReview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/purchase/confirm": {
+      "post": {
+        "tags": [
+          "Purchase & Confirmation"
+        ],
+        "summary": "Confirm Purchase",
+        "operationId": "confirm_purchase_api_purchase_confirm_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmPurchaseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/purchase/cancel": {
+      "post": {
+        "tags": [
+          "Purchase & Confirmation"
+        ],
+        "summary": "Cancel Purchase",
+        "operationId": "cancel_purchase_api_purchase_cancel_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/purchase/simulate-price-change": {
+      "post": {
+        "tags": [
+          "Purchase & Confirmation"
+        ],
+        "summary": "Simulate Price Change",
+        "operationId": "simulate_price_change_api_purchase_simulate_price_change_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PriceChangeSimulationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseReview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/create": {
+      "post": {
+        "tags": [
+          "Payments (PayPal Sandbox)"
+        ],
+        "summary": "Create Payment Order",
+        "operationId": "create_payment_order_api_payments_create_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/capture": {
+      "post": {
+        "tags": [
+          "Payments (PayPal Sandbox)"
+        ],
+        "summary": "Capture Payment",
+        "operationId": "capture_payment_api_payments_capture_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CapturePaymentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/simulate-failure": {
+      "post": {
+        "tags": [
+          "Payments (PayPal Sandbox)"
+        ],
+        "summary": "Toggle Payment Failure Simulation",
+        "operationId": "toggle_payment_failure_simulation_api_payments_simulate_failure_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulateFailureRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/status": {
+      "get": {
+        "tags": [
+          "Payments (PayPal Sandbox)"
+        ],
+        "summary": "Get Payment Gateway Status",
+        "operationId": "get_payment_gateway_status_api_payments_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders": {
+      "get": {
+        "tags": [
+          "Orders & Returns"
+        ],
+        "summary": "Get Orders",
+        "operationId": "get_orders_api_orders_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OrderRecord"
+                  },
+                  "type": "array",
+                  "title": "Response Get Orders Api Orders Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/track": {
+      "get": {
+        "tags": [
+          "Orders & Returns"
+        ],
+        "summary": "Track Order",
+        "operationId": "track_order_api_orders_track_get",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Query"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/return": {
+      "post": {
+        "tags": [
+          "Orders & Returns"
+        ],
+        "summary": "Return Assistant",
+        "operationId": "return_assistant_api_orders_return_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/accessibility/preferences": {
+      "get": {
+        "tags": [
+          "Accessibility"
+        ],
+        "summary": "Get Preferences",
+        "operationId": "get_preferences_api_accessibility_preferences_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessibilityPreferences"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Accessibility"
+        ],
+        "summary": "Update Preferences",
+        "operationId": "update_preferences_api_accessibility_preferences_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object",
+                "title": "Updates"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessibilityPreferences"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/accessibility/mode": {
+      "post": {
+        "tags": [
+          "Accessibility"
+        ],
+        "summary": "Switch Mode",
+        "operationId": "switch_mode_api_accessibility_mode_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModeSwitchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessibilityPreferences"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/accessibility/reset": {
+      "post": {
+        "tags": [
+          "Accessibility"
+        ],
+        "summary": "Reset Preferences",
+        "operationId": "reset_preferences_api_accessibility_reset_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessibilityPreferences"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/intent": {
+      "post": {
+        "tags": [
+          "AI Agentic Commerce"
+        ],
+        "summary": "Process Intent",
+        "operationId": "process_intent_api_ai_intent_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserIntentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/commands": {
+      "get": {
+        "tags": [
+          "AI Agentic Commerce"
+        ],
+        "summary": "Get Suggested Commands",
+        "operationId": "get_suggested_commands_api_ai_commands_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/reset-conversation": {
+      "post": {
+        "tags": [
+          "AI Agentic Commerce"
+        ],
+        "summary": "Reset Ai Conversation",
+        "operationId": "reset_ai_conversation_api_ai_reset_conversation_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/timeline": {
+      "get": {
+        "tags": [
+          "Timeline (Bryntum Integration)"
+        ],
+        "summary": "Get Timeline",
+        "operationId": "get_timeline_api_timeline_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TimelineEvent"
+                  },
+                  "type": "array",
+                  "title": "Response Get Timeline Api Timeline Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/timeline/query": {
+      "post": {
+        "tags": [
+          "Timeline (Bryntum Integration)"
+        ],
+        "summary": "Query Timeline",
+        "operationId": "query_timeline_api_timeline_query_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TimelineQueryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/summary": {
+      "get": {
+        "tags": [
+          "Analytics & AG Grid"
+        ],
+        "summary": "Get Accessibility Activity Summary",
+        "operationId": "get_accessibility_activity_summary_api_analytics_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessibilityActivitySummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/grid-query": {
+      "post": {
+        "tags": [
+          "Analytics & AG Grid"
+        ],
+        "summary": "Query Grid",
+        "operationId": "query_grid_api_analytics_grid_query_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GridQueryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/audit-events": {
+      "get": {
+        "tags": [
+          "Analytics & AG Grid"
+        ],
+        "summary": "Get Audit Events",
+        "operationId": "get_audit_events_api_analytics_audit_events_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/demo/scenarios": {
+      "get": {
+        "tags": [
+          "Demo Controller & Reset"
+        ],
+        "summary": "List Scenarios",
+        "operationId": "list_scenarios_api_demo_scenarios_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/demo/reset": {
+      "post": {
+        "tags": [
+          "Demo Controller & Reset"
+        ],
+        "summary": "Reset Demo",
+        "description": "RESET DEMO: Returns database, cart, state machine, and preferences to known initial values.",
+        "operationId": "reset_demo_api_demo_reset_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/demo/scenario/{scenario_id}": {
+      "post": {
+        "tags": [
+          "Demo Controller & Reset"
+        ],
+        "summary": "Load Scenario",
+        "description": "Deterministically sets up state for a specific demo scenario.",
+        "operationId": "load_scenario_api_demo_scenario__scenario_id__post",
+        "parameters": [
+          {
+            "name": "scenario_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Scenario Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/developer/overview": {
+      "get": {
+        "tags": [
+          "Developer Platform & APIMatic"
+        ],
+        "summary": "Get Developer Overview",
+        "operationId": "get_developer_overview_api_developer_overview_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Render Health Check endpoint (Section 68).\nReturns operational health status across application, database, and integrations\nwithout exposing any confidential keys or credentials.",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccessibilityActivitySummary": {
+        "properties": {
+          "purchases_completed": {
+            "type": "integer",
+            "title": "Purchases Completed",
+            "default": 14
+          },
+          "voice_interactions": {
+            "type": "integer",
+            "title": "Voice Interactions",
+            "default": 42
+          },
+          "keyboard_interactions": {
+            "type": "integer",
+            "title": "Keyboard Interactions",
+            "default": 31
+          },
+          "large_control_interactions": {
+            "type": "integer",
+            "title": "Large Control Interactions",
+            "default": 19
+          },
+          "switch_compatible_interactions": {
+            "type": "integer",
+            "title": "Switch Compatible Interactions",
+            "default": 12
+          },
+          "subscription_warnings_shown": {
+            "type": "integer",
+            "title": "Subscription Warnings Shown",
+            "default": 8
+          },
+          "cheaper_alternatives_accepted": {
+            "type": "integer",
+            "title": "Cheaper Alternatives Accepted",
+            "default": 6
+          },
+          "purchases_cancelled_before_payment": {
+            "type": "integer",
+            "title": "Purchases Cancelled Before Payment",
+            "default": 5
+          }
+        },
+        "type": "object",
+        "title": "AccessibilityActivitySummary"
+      },
+      "AccessibilityPreferences": {
+        "properties": {
+          "user_name": {
+            "type": "string",
+            "title": "User Name",
+            "default": "Alex"
+          },
+          "current_mode": {
+            "type": "string",
+            "title": "Current Mode",
+            "default": "VOICE"
+          },
+          "read_important_aloud": {
+            "type": "boolean",
+            "title": "Read Important Aloud",
+            "default": true
+          },
+          "read_total_aloud": {
+            "type": "boolean",
+            "title": "Read Total Aloud",
+            "default": true
+          },
+          "simplified_interface": {
+            "type": "boolean",
+            "title": "Simplified Interface",
+            "default": false
+          },
+          "one_action_per_screen": {
+            "type": "boolean",
+            "title": "One Action Per Screen",
+            "default": false
+          },
+          "reduced_motion": {
+            "type": "boolean",
+            "title": "Reduced Motion",
+            "default": false
+          },
+          "extra_response_time": {
+            "type": "boolean",
+            "title": "Extra Response Time",
+            "default": false
+          },
+          "warn_subscriptions": {
+            "type": "boolean",
+            "title": "Warn Subscriptions",
+            "default": true
+          },
+          "always_show_total_cost": {
+            "type": "boolean",
+            "title": "Always Show Total Cost",
+            "default": true
+          },
+          "suggest_cheaper_alternatives": {
+            "type": "boolean",
+            "title": "Suggest Cheaper Alternatives",
+            "default": true
+          },
+          "cheaper_alternative_threshold": {
+            "type": "number",
+            "title": "Cheaper Alternative Threshold",
+            "default": 50.0
+          },
+          "exact_price_confirmation": {
+            "type": "boolean",
+            "title": "Exact Price Confirmation",
+            "default": true
+          },
+          "double_confirmation_threshold": {
+            "type": "number",
+            "title": "Double Confirmation Threshold",
+            "default": 500.0
+          },
+          "warn_quantity_greater_one": {
+            "type": "boolean",
+            "title": "Warn Quantity Greater One",
+            "default": true
+          },
+          "warn_shipping_exceeds": {
+            "type": "number",
+            "title": "Warn Shipping Exceeds",
+            "default": 15.0
+          },
+          "switch_scan_speed_ms": {
+            "type": "integer",
+            "title": "Switch Scan Speed Ms",
+            "default": 1800
+          }
+        },
+        "type": "object",
+        "title": "AccessibilityPreferences"
+      },
+      "AddToCartRequest": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity",
+            "default": 1
+          },
+          "selected_variant": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Variant"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id"
+        ],
+        "title": "AddToCartRequest"
+      },
+      "CapturePaymentRequest": {
+        "properties": {
+          "paypal_order_id": {
+            "type": "string",
+            "title": "Paypal Order Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "paypal_order_id"
+        ],
+        "title": "CapturePaymentRequest"
+      },
+      "Cart": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CartItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "item_count": {
+            "type": "integer",
+            "title": "Item Count",
+            "default": 0
+          },
+          "subtotal": {
+            "type": "number",
+            "title": "Subtotal",
+            "default": 0.0
+          },
+          "shipping_total": {
+            "type": "number",
+            "title": "Shipping Total",
+            "default": 0.0
+          },
+          "tax_total": {
+            "type": "number",
+            "title": "Tax Total",
+            "default": 0.0
+          },
+          "discount_total": {
+            "type": "number",
+            "title": "Discount Total",
+            "default": 0.0
+          },
+          "total_today": {
+            "type": "number",
+            "title": "Total Today",
+            "default": 0.0
+          },
+          "future_payments": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Future Payments",
+            "default": "None"
+          },
+          "has_subscriptions": {
+            "type": "boolean",
+            "title": "Has Subscriptions",
+            "default": false
+          },
+          "has_trials": {
+            "type": "boolean",
+            "title": "Has Trials",
+            "default": false
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "title": "Cart"
+      },
+      "CartItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product"
+          },
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity",
+            "default": 1
+          },
+          "selected_variant": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Selected Variant"
+          },
+          "item_total": {
+            "type": "number",
+            "title": "Item Total",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "product_id",
+          "product"
+        ],
+        "title": "CartItem"
+      },
+      "ConfirmPurchaseRequest": {
+        "properties": {
+          "review_token": {
+            "type": "string",
+            "title": "Review Token"
+          },
+          "spoken_phrase": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spoken Phrase"
+          },
+          "confirmation_method": {
+            "type": "string",
+            "title": "Confirmation Method",
+            "default": "VOICE"
+          },
+          "subscription_acknowledged": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subscription Acknowledged"
+          },
+          "trial_acknowledged": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trial Acknowledged"
+          },
+          "high_value_step": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "High Value Step"
+          }
+        },
+        "type": "object",
+        "required": [
+          "review_token"
+        ],
+        "title": "ConfirmPurchaseRequest"
+      },
+      "ConfirmationEvent": {
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp"
+          },
+          "event_type": {
+            "type": "string",
+            "title": "Event Type"
+          },
+          "details": {
+            "type": "string",
+            "title": "Details"
+          },
+          "interaction_mode": {
+            "type": "string",
+            "title": "Interaction Mode",
+            "default": "VOICE"
+          }
+        },
+        "type": "object",
+        "required": [
+          "timestamp",
+          "event_type",
+          "details"
+        ],
+        "title": "ConfirmationEvent"
+      },
+      "CreatePaymentRequest": {
+        "properties": {
+          "amount": {
+            "type": "number",
+            "title": "Amount"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "default": "USD"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "default": "AccessPay AI Order"
+          }
+        },
+        "type": "object",
+        "required": [
+          "amount"
+        ],
+        "title": "CreatePaymentRequest"
+      },
+      "GridQueryRequest": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "GridQueryRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ModeSwitchRequest": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mode"
+        ],
+        "title": "ModeSwitchRequest"
+      },
+      "OrderRecord": {
+        "properties": {
+          "order_id": {
+            "type": "string",
+            "title": "Order Id"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "product_title": {
+            "type": "string",
+            "title": "Product Title"
+          },
+          "merchant": {
+            "type": "string",
+            "title": "Merchant"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "item_price": {
+            "type": "number",
+            "title": "Item Price"
+          },
+          "shipping": {
+            "type": "number",
+            "title": "Shipping"
+          },
+          "tax": {
+            "type": "number",
+            "title": "Tax"
+          },
+          "total": {
+            "type": "number",
+            "title": "Total"
+          },
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity",
+            "default": 1
+          },
+          "variant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variant",
+            "default": "Standard"
+          },
+          "is_recurring": {
+            "type": "boolean",
+            "title": "Is Recurring",
+            "default": false
+          },
+          "interaction_mode": {
+            "type": "string",
+            "title": "Interaction Mode",
+            "default": "VOICE"
+          },
+          "confirmation_method": {
+            "type": "string",
+            "title": "Confirmation Method",
+            "default": "Exact-Amount Voice Phrase"
+          },
+          "payment_status": {
+            "type": "string",
+            "title": "Payment Status",
+            "default": "PAID"
+          },
+          "paypal_order_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paypal Order Id"
+          },
+          "tracking_status": {
+            "type": "string",
+            "title": "Tracking Status",
+            "default": "DELIVERED"
+          },
+          "tracking_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tracking Number"
+          },
+          "return_eligible": {
+            "type": "boolean",
+            "title": "Return Eligible",
+            "default": true
+          },
+          "return_window_days": {
+            "type": "integer",
+            "title": "Return Window Days",
+            "default": 30
+          }
+        },
+        "type": "object",
+        "required": [
+          "order_id",
+          "date",
+          "product_title",
+          "merchant",
+          "category",
+          "item_price",
+          "shipping",
+          "tax",
+          "total"
+        ],
+        "title": "OrderRecord"
+      },
+      "PriceChangeSimulationRequest": {
+        "properties": {
+          "new_price": {
+            "type": "number",
+            "title": "New Price",
+            "default": 62.99
+          }
+        },
+        "type": "object",
+        "title": "PriceChangeSimulationRequest"
+      },
+      "Product": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "price": {
+            "type": "number",
+            "title": "Price"
+          },
+          "original_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Price"
+          },
+          "shipping": {
+            "type": "number",
+            "title": "Shipping",
+            "default": 0.0
+          },
+          "estimated_tax": {
+            "type": "number",
+            "title": "Estimated Tax",
+            "default": 0.0
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "merchant": {
+            "type": "string",
+            "title": "Merchant"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image Url"
+          },
+          "rating": {
+            "type": "number",
+            "title": "Rating",
+            "default": 4.8
+          },
+          "review_count": {
+            "type": "integer",
+            "title": "Review Count",
+            "default": 240
+          },
+          "is_available": {
+            "type": "boolean",
+            "title": "Is Available",
+            "default": true
+          },
+          "is_subscription": {
+            "type": "boolean",
+            "title": "Is Subscription",
+            "default": false
+          },
+          "subscription_period": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subscription Period"
+          },
+          "is_trial": {
+            "type": "boolean",
+            "title": "Is Trial",
+            "default": false
+          },
+          "trial_days": {
+            "type": "integer",
+            "title": "Trial Days",
+            "default": 0
+          },
+          "trial_post_price": {
+            "type": "number",
+            "title": "Trial Post Price",
+            "default": 0.0
+          },
+          "documented_accessibility_features": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Documented Accessibility Features"
+          },
+          "ai_inferred_accessibility": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Ai Inferred Accessibility"
+          },
+          "ranking_badge": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ranking Badge"
+          },
+          "ranking_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ranking Reason"
+          },
+          "cheaper_alternative_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cheaper Alternative Id"
+          },
+          "savings_amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Savings Amount"
+          },
+          "variants": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variants"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "description",
+          "price",
+          "category",
+          "merchant",
+          "image_url"
+        ],
+        "title": "Product"
+      },
+      "ProductComparisonRequest": {
+        "properties": {
+          "product_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Product Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_ids"
+        ],
+        "title": "ProductComparisonRequest"
+      },
+      "ProductSearchQuery": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "budget_limit": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget Limit"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "accessibility_needs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Accessibility Needs"
+          },
+          "merchant_preference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant Preference"
+          },
+          "sort_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sort By",
+            "default": "relevance"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "ProductSearchQuery"
+      },
+      "PurchaseResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "state": {
+            "$ref": "#/components/schemas/PurchaseState"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "order_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Id"
+          },
+          "paypal_order_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paypal Order Id"
+          },
+          "amount_charged": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Charged"
+          },
+          "requires_step": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requires Step"
+          },
+          "is_ambiguous": {
+            "type": "boolean",
+            "title": "Is Ambiguous",
+            "default": false
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/ConfirmationEvent"
+            },
+            "type": "array",
+            "title": "Events"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "state",
+          "message"
+        ],
+        "title": "PurchaseResponse"
+      },
+      "PurchaseReview": {
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/PurchaseState",
+            "default": "PAYMENT_REVIEW"
+          },
+          "cart": {
+            "$ref": "#/components/schemas/Cart"
+          },
+          "item_subtotal": {
+            "type": "number",
+            "title": "Item Subtotal"
+          },
+          "shipping": {
+            "type": "number",
+            "title": "Shipping"
+          },
+          "tax": {
+            "type": "number",
+            "title": "Tax"
+          },
+          "discount": {
+            "type": "number",
+            "title": "Discount",
+            "default": 0.0
+          },
+          "total_today": {
+            "type": "number",
+            "title": "Total Today"
+          },
+          "future_payments": {
+            "type": "string",
+            "title": "Future Payments",
+            "default": "None"
+          },
+          "is_high_value": {
+            "type": "boolean",
+            "title": "Is High Value",
+            "default": false
+          },
+          "high_value_step": {
+            "type": "integer",
+            "title": "High Value Step",
+            "default": 1
+          },
+          "high_value_total_steps": {
+            "type": "integer",
+            "title": "High Value Total Steps",
+            "default": 1
+          },
+          "requires_exact_phrase": {
+            "type": "boolean",
+            "title": "Requires Exact Phrase",
+            "default": true
+          },
+          "expected_phrase": {
+            "type": "string",
+            "title": "Expected Phrase"
+          },
+          "is_subscription": {
+            "type": "boolean",
+            "title": "Is Subscription",
+            "default": false
+          },
+          "subscription_terms": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subscription Terms"
+          },
+          "subscription_acknowledged": {
+            "type": "boolean",
+            "title": "Subscription Acknowledged",
+            "default": false
+          },
+          "is_free_trial": {
+            "type": "boolean",
+            "title": "Is Free Trial",
+            "default": false
+          },
+          "trial_terms": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trial Terms"
+          },
+          "trial_acknowledged": {
+            "type": "boolean",
+            "title": "Trial Acknowledged",
+            "default": false
+          },
+          "quantity_warning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity Warning"
+          },
+          "shipping_warning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shipping Warning"
+          },
+          "snapshot_total": {
+            "type": "number",
+            "title": "Snapshot Total"
+          },
+          "snapshot_shipping": {
+            "type": "number",
+            "title": "Snapshot Shipping"
+          },
+          "snapshot_item_subtotal": {
+            "type": "number",
+            "title": "Snapshot Item Subtotal"
+          },
+          "review_token": {
+            "type": "string",
+            "title": "Review Token"
+          },
+          "is_invalidated": {
+            "type": "boolean",
+            "title": "Is Invalidated",
+            "default": false
+          },
+          "invalidation_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invalidation Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cart",
+          "item_subtotal",
+          "shipping",
+          "tax",
+          "total_today",
+          "expected_phrase",
+          "snapshot_total",
+          "snapshot_shipping",
+          "snapshot_item_subtotal",
+          "review_token"
+        ],
+        "title": "PurchaseReview"
+      },
+      "PurchaseState": {
+        "type": "string",
+        "enum": [
+          "BROWSING",
+          "PRODUCT_SELECTED",
+          "CART",
+          "PAYMENT_REVIEW",
+          "CONFIRMATION_REQUIRED",
+          "PAYMENT_PROCESSING",
+          "PAYMENT_COMPLETE",
+          "CANCELLED",
+          "PAYMENT_FAILED"
+        ],
+        "title": "PurchaseState"
+      },
+      "ReturnRequest": {
+        "properties": {
+          "product_name": {
+            "type": "string",
+            "title": "Product Name",
+            "default": "headphones"
+          }
+        },
+        "type": "object",
+        "title": "ReturnRequest"
+      },
+      "SimulateFailureRequest": {
+        "properties": {
+          "simulate": {
+            "type": "boolean",
+            "title": "Simulate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "simulate"
+        ],
+        "title": "SimulateFailureRequest"
+      },
+      "TimelineEvent": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "display_date": {
+            "type": "string",
+            "title": "Display Date"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "merchant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "is_recurring": {
+            "type": "boolean",
+            "title": "Is Recurring",
+            "default": false
+          },
+          "recurring_interval": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurring Interval"
+          },
+          "highlight": {
+            "type": "boolean",
+            "title": "Highlight",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "date",
+          "display_date",
+          "title",
+          "category",
+          "description",
+          "status"
+        ],
+        "title": "TimelineEvent"
+      },
+      "TimelineQueryRequest": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "TimelineQueryRequest"
+      },
+      "UpdateCartItemRequest": {
+        "properties": {
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity"
+          }
+        },
+        "type": "object",
+        "required": [
+          "quantity"
+        ],
+        "title": "UpdateCartItemRequest"
+      },
+      "UserIntentRequest": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "UserIntentRequest"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
