@@ -8,6 +8,8 @@ export type PrimaryTab = 'shop' | 'saved' | 'orders' | 'cart';
 interface HeaderProps {
   activeTab?: PrimaryTab;
   onSelectTab?: (tab: PrimaryTab) => void;
+  onGoHome?: () => void;
+  onOpenAbout?: () => void;
   savedCount?: number;
   cartCount?: number;
 }
@@ -15,10 +17,20 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   activeTab = 'shop',
   onSelectTab,
+  onGoHome,
+  onOpenAbout,
   savedCount = 0,
   cartCount = 0,
 }) => {
   const { voiceStatus, toggleListening } = useVoiceCommand();
+
+  const handleHomeClick = () => {
+    if (onGoHome) {
+      onGoHome();
+    } else if (onSelectTab) {
+      onSelectTab('shop');
+    }
+  };
 
   const navTabs = useMemo(
     () =>
@@ -43,19 +55,52 @@ export const Header: React.FC<HeaderProps> = ({
   );
 
   const navControls = useMemo<VoiceControlDescriptor[]>(() => {
-    if (!onSelectTab) return [];
-    return navTabs.map((tab, idx) => ({
-      id: `nav-tab-${tab.id}`,
-      type: 'tab',
-      accessibleName: tab.name,
-      aliases: tab.aliases,
-      entityIndex: idx,
+    const controls: VoiceControlDescriptor[] = [];
+
+    controls.push({
+      id: 'header-brand-logo',
+      type: 'navigation',
+      accessibleName: 'AccessPay AI — Home',
+      aliases: ['home', 'go home', 'accesspay home', 'logo', 'back to home'],
+      entityIndex: 0,
       currentView: 'GLOBAL',
       enabled: true,
-      feedbackText: `Opening ${tab.name}.`,
-      action: () => onSelectTab(tab.id),
-    }));
-  }, [navTabs, onSelectTab]);
+      feedbackText: 'Navigating to Home.',
+      action: handleHomeClick,
+    });
+
+    if (onSelectTab) {
+      navTabs.forEach((tab, idx) => {
+        controls.push({
+          id: `nav-tab-${tab.id}`,
+          type: 'tab',
+          accessibleName: tab.name,
+          aliases: tab.aliases,
+          entityIndex: idx + 1,
+          currentView: 'GLOBAL',
+          enabled: true,
+          feedbackText: `Opening ${tab.name}.`,
+          action: () => onSelectTab(tab.id),
+        });
+      });
+    }
+
+    if (onOpenAbout) {
+      controls.push({
+        id: 'header-about',
+        type: 'navigation',
+        accessibleName: 'About AccessPay AI',
+        aliases: ['about', 'about page', 'about accesspay', 'open about', 'go to about'],
+        entityIndex: 99,
+        currentView: 'GLOBAL',
+        enabled: true,
+        feedbackText: 'Opening About page.',
+        action: onOpenAbout,
+      });
+    }
+
+    return controls;
+  }, [navTabs, onSelectTab, onOpenAbout, handleHomeClick]);
 
   useRegisterVoiceControls('header-nav', navControls, [navControls]);
 
@@ -91,8 +136,32 @@ export const Header: React.FC<HeaderProps> = ({
           gap: '14px',
         }}
       >
-        {/* Brand Identity */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Brand Identity / Home Navigation Link */}
+        <a
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            handleHomeClick();
+          }}
+          aria-label="AccessPay AI — Home"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            textDecoration: 'none',
+            color: 'inherit',
+            cursor: 'pointer',
+            borderRadius: '12px',
+            padding: '2px 4px',
+            outline: 'none',
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleHomeClick();
+            }
+          }}
+        >
           <div
             style={{
               width: '44px',
@@ -103,19 +172,20 @@ export const Header: React.FC<HeaderProps> = ({
               alignItems: 'center',
               justifyContent: 'center',
               boxShadow: '0 0 20px rgba(2, 132, 199, 0.4)',
+              flexShrink: 0,
             }}
           >
-            <ShieldCheck size={24} color="#ffffff" />
+            <ShieldCheck size={24} color="#ffffff" aria-hidden="true" />
           </div>
           <div>
-            <h1 style={{ fontSize: '1.35rem', fontWeight: 900, letterSpacing: '-0.02em', color: '#f8fafc', margin: 0 }}>
+            <div style={{ fontSize: '1.35rem', fontWeight: 900, letterSpacing: '-0.02em', color: '#f8fafc', margin: 0 }}>
               AccessPay <span style={{ color: '#38bdf8' }}>AI</span>
-            </h1>
+            </div>
             <p style={{ fontSize: '0.84rem', color: '#94a3b8', margin: '2px 0 0', fontWeight: 500 }}>
               Voice-First Shopping &bull; <strong style={{ color: '#f8fafc' }}>You make the decisions.</strong>
             </p>
           </div>
-        </div>
+        </a>
 
         {/* Clean Primary View Navigation: Shop | Saved | Orders | Cart */}
         {onSelectTab && (

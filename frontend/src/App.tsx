@@ -9,6 +9,7 @@ import { SavedView } from './components/pages/SavedView';
 import { OrdersView } from './components/pages/OrdersView';
 import { CartView } from './components/pages/CartView';
 import { DevelopersView } from './components/pages/DevelopersView';
+import { AboutView } from './components/pages/AboutView';
 import { api } from './services/api';
 import { AppViewName, PurchaseReview } from './types';
 import { Volume2 } from 'lucide-react';
@@ -34,12 +35,16 @@ const AppContent: React.FC = () => {
   const [showDevelopers, setShowDevelopers] = useState<boolean>(() =>
     typeof window !== 'undefined' && window.location.pathname === '/developers'
   );
+  const [showAbout, setShowAbout] = useState<boolean>(() =>
+    typeof window !== 'undefined' && window.location.pathname === '/about'
+  );
   const [savedSubTab, setSavedSubTab] = useState<'items' | 'searches'>('items');
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const onPopState = () => {
       setShowDevelopers(window.location.pathname === '/developers');
+      setShowAbout(window.location.pathname === '/about');
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
@@ -50,6 +55,7 @@ const AppContent: React.FC = () => {
       window.history.pushState({}, '', '/developers');
     }
     setShowDevelopers(true);
+    setShowAbout(false);
   }, []);
 
   const closeDevelopersPage = useCallback(() => {
@@ -58,6 +64,32 @@ const AppContent: React.FC = () => {
     }
     setShowDevelopers(false);
   }, []);
+
+  const openAboutPage = useCallback(() => {
+    if (typeof window !== 'undefined' && window.location.pathname !== '/about') {
+      window.history.pushState({}, '', '/about');
+    }
+    setShowAbout(true);
+    setShowDevelopers(false);
+  }, []);
+
+  const closeAboutPage = useCallback(() => {
+    if (typeof window !== 'undefined' && window.location.pathname === '/about') {
+      window.history.pushState({}, '', '/');
+    }
+    setShowAbout(false);
+  }, []);
+
+  const handleGoHome = useCallback(() => {
+    if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+      window.history.pushState({}, '', '/');
+    }
+    setShowDevelopers(false);
+    setShowAbout(false);
+    closeDevelopersPage();
+    closeAboutPage();
+    setActiveTab('shop');
+  }, [closeDevelopersPage, closeAboutPage]);
   const [selectedSavedItemId, setSelectedSavedItemId] = useState<string | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [ordersInitialTab, setOrdersInitialTab] = useState<'purchases' | 'subscriptions'>('purchases');
@@ -98,6 +130,7 @@ const AppContent: React.FC = () => {
   const navigateTo = useCallback(
     (tab: PrimaryTab, subTab?: 'items' | 'searches', recordHistory = true) => {
       closeDevelopersPage();
+      closeAboutPage();
       if (recordHistory) {
         const cur = activeTabRef.current;
         const curSub = savedSubTabRef.current;
@@ -119,7 +152,7 @@ const AppContent: React.FC = () => {
         refreshCart();
       }
     },
-    [loadSavedIds, refreshCart, closeDevelopersPage]
+    [loadSavedIds, refreshCart, closeDevelopersPage, closeAboutPage]
   );
 
   // Escape key global listener for accessible cancellation on active checkout
@@ -460,8 +493,10 @@ const AppContent: React.FC = () => {
       <LiveAnnouncer />
 
       <Header
-        activeTab={activeTab}
+        activeTab={showAbout || showDevelopers ? undefined : activeTab}
         onSelectTab={(tab) => navigateTo(tab, tab === 'saved' ? savedSubTab : undefined, true)}
+        onGoHome={handleGoHome}
+        onOpenAbout={openAboutPage}
         savedCount={savedProductIds.size}
         cartCount={cartItemCount}
       />
@@ -522,11 +557,16 @@ const AppContent: React.FC = () => {
       {/* Main Views (ShoppingView stays mounted so search & checkout session never resets across tabs) */}
       <main style={{ flex: 1 }}>
         {showDevelopers ? (
-          <DevelopersView onBackToShop={() => navigateTo('shop', undefined, false)} />
+          <DevelopersView onBackToShop={handleGoHome} />
+        ) : showAbout ? (
+          <AboutView
+            onStartShopping={handleGoHome}
+            onNavigateDevelopers={openDevelopersPage}
+          />
         ) : null}
-        <div style={{ display: !showDevelopers && activeTab === 'shop' ? 'block' : 'none' }}>
+        <div style={{ display: !showDevelopers && !showAbout && activeTab === 'shop' ? 'block' : 'none' }}>
           <ShoppingView
-            isActiveTab={activeTab === 'shop'}
+            isActiveTab={!showDevelopers && !showAbout && activeTab === 'shop'}
             onNavigateSaved={handleOpenSaved}
             onNavigateOrders={() => navigateTo('orders', undefined, true)}
             onNavigateCart={() => navigateTo('cart', undefined, true)}
@@ -540,7 +580,7 @@ const AppContent: React.FC = () => {
             }}
           />
         </div>
-        {!showDevelopers && activeTab === 'saved' && (
+        {!showDevelopers && !showAbout && activeTab === 'saved' && (
           <SavedView
             initialSubTab={savedSubTab}
             onReopenSearch={handleReopenSearch}
@@ -551,7 +591,7 @@ const AppContent: React.FC = () => {
             reloadNonce={savedReloadNonce}
           />
         )}
-        {!showDevelopers && activeTab === 'orders' && (
+        {!showDevelopers && !showAbout && activeTab === 'orders' && (
           <OrdersView
             onReorderReview={handleReorderReview}
             selectedOrderId={selectedOrderId}
@@ -561,7 +601,7 @@ const AppContent: React.FC = () => {
             onTabChange={setOrdersInitialTab}
           />
         )}
-        {!showDevelopers && activeTab === 'cart' && (
+        {!showDevelopers && !showAbout && activeTab === 'cart' && (
           <CartView
             onProceedToReview={handleCartProceedToReview}
             onBackToShop={() => navigateTo('shop', undefined, true)}
@@ -596,16 +636,35 @@ const AppContent: React.FC = () => {
           </span>
           <button
             type="button"
+            onClick={openAboutPage}
+            style={{
+              backgroundColor: showAbout ? '#0284c7' : 'transparent',
+              border: showAbout ? '1px solid #38bdf8' : '1px solid #334155',
+              color: showAbout ? '#ffffff' : '#cbd5e1',
+              padding: '4px 14px',
+              borderRadius: '999px',
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              minHeight: '30px',
+              cursor: 'pointer',
+            }}
+            aria-label="About AccessPay"
+          >
+            About
+          </button>
+          <button
+            type="button"
             onClick={openDevelopersPage}
             style={{
-              backgroundColor: 'transparent',
-              border: '1px solid #334155',
-              color: '#94a3b8',
+              backgroundColor: showDevelopers ? '#0284c7' : 'transparent',
+              border: showDevelopers ? '1px solid #38bdf8' : '1px solid #334155',
+              color: showDevelopers ? '#ffffff' : '#94a3b8',
               padding: '4px 12px',
               borderRadius: '999px',
               fontSize: '0.78rem',
               fontWeight: 600,
               minHeight: '30px',
+              cursor: 'pointer',
             }}
             aria-label="For Developers"
           >
@@ -623,6 +682,7 @@ const AppContent: React.FC = () => {
               fontSize: '0.78rem',
               fontWeight: 600,
               minHeight: '30px',
+              cursor: 'pointer',
             }}
             aria-label="Reset Demo"
           >
